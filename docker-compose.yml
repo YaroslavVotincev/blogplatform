@@ -1,0 +1,191 @@
+version: "3"
+services:
+  mq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "15672:15672"
+
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  config_service:
+    build: ./config-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - SERVICE_NAME=config_service
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=config
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      - db
+      - mq
+
+  users_service:
+    build: ./users-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=users_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  authentication_service:
+    build: ./auth-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=authentication_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  history_logs_service:
+    build: ./logs-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=history_logs_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  registration_service:
+    build: ./registration-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=registration_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  email_service:
+    build: ./email-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=email_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  posts_service:
+    build: ./posts-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=posts_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  comments_service:
+    build: ./comments-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=comments_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  billing_service:
+    build: ./billing-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=billing_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  file_service:
+    build: ./file-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=file_service
+    volumes:
+      - ./file-service/uploads:/uploads
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  notifications_service:
+    build: ./notifications-service/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=notifications_service
+    depends_on:
+      - config_service
+      - db
+      - mq
+
+  api_gateway:
+    build: ./api-gateway/.
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CONFIG_SERVICE_HOST=config_service
+      - CONFIG_SERVICE_PORT=8000
+      - CONFIG_UPDATE_INTERVAL=60
+      - SERVICE_NAME=api_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - config_service
+      - mq
+      - db

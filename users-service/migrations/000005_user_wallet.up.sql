@@ -1,0 +1,1 @@
+alter table users add column if not exists wallet varchar(100) default null;
